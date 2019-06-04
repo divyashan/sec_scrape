@@ -1,0 +1,107 @@
+21/55 companies follow the basic format
+	Across those 21 companies, there are 83 rows - some of these are maybe not helpful categories, but they are in there
+	Looked through 10 of them and it all checks out
+23/55 companies have a table that can be detected
+11/55 companies do not have a table that can be detecteed, manual search necessary
+
+
+fixed table detection step; new numbers:
+29/55 companies follow the basic format
+24/55 companies have a table w a problematic row
+2/55 companies do not have a table that can be detected
+
+
+of the 24 files with a table and a problematic row, i've gone through 2 of them:
+
+there's no SEC fiel for this one, doesn't match the text: 0001104659-04-007210.txt
+and the table for this one should be the table after the '19 years' statement: https://www.sec.gov/Archives/edgar/data/1063197/000106319704000009/htm10ksb.htm
+	- '0001063197-04-000009.txt'
+
+0001193125-04-051895.txt - fixed identification of table in this file; was missed because we chose the wrong table
+
+----- check in with suzie 5/28/2019 -----
+
+todos
+	[ ] find out if it says 'millions' in the nearby text or 'thousands'
+	[ ] detecting tables with no table tags
+
+
+[ ] run initial scraping code
+[ ] identify files that need a second look
+	[ ] files where a table was found, but no correct row
+		['0000007332-04-000020.txt', [good - had to check for other words in tables, rank by occurrence & not nubmer]
+		 '0001047469-04-007791.txt', 
+		 '0001193125-04-035483.txt',
+		 '0001104659-04-018342.txt',
+		 '0000007536-04-000009.txt',
+		 '0001047469-04-035975.txt',
+		 '0001193125-04-035633.txt',
+		 '0001104659-04-007428.txt',
+		 '0000945234-04-000159.txt',
+		 '0001193125-04-054031.txt',
+		 '0001193125-04-031291.txt',
+		 '0001104659-04-032708.txt',
+		 '0000047288-04-000009.txt',
+		 '0001085653-04-000023.txt',
+		 '0001193125-04-006231.txt',
+		 '0001193125-04-155723.txt',
+		 '0001104659-04-009633.txt',
+		 '0001104659-04-030276.txt',
+		 '0001104659-04-008933.txt',
+		 '0000950134-04-003387.txt',
+		 '0001193125-04-193919.txt',
+		 '0000773141-04-000004.txt',
+		 '0000805264-04-000007.txt']
+		 '0001063197-04-000009.txt' - can't find the table, could be 	
+	[ ] files where a table was found and the row was found, but there was a different problem
+		 '0001104659-04-007271.txt', [good] 
+		 '0001104659-04-007271.txt', [good]
+		 '0001193125-04-051895.txt', [good]
+		 '0001193125-04-030895.txt', [good]
+		 '0001193125-04-030895.txt', [good]
+		 '0001193125-04-030895.txt', [good]
+		 '0001047469-04-014114.txt', [good]
+		 '0001047469-04-014114.txt', [good]
+		 '0001047469-04-014114.txt', [good]
+		 '0001193125-04-053937.txt', [good]
+		 '0001193125-04-053937.txt', [good]
+		 '0001104659-04-007464.txt', [good]
+		 '0001104659-04-007464.txt', [good]
+		 '0000910647-04-000122.txt', [good]
+		 '0000910647-04-000122.txt', [good]
+		 '0001104659-04-007074.txt', [good]
+		 '0001104659-04-007074.txt', [good]
+		 '0001104659-04-007074.txt', [good]
+		 '0001104659-04-007074.txt', [good]
+		 '0000950124-04-000754.txt', [good]
+		 '0001193125-04-163259.txt', [good]
+		 '0001193125-04-163259.txt', [good]
+		 '0001104659-04-007210.txt', [talk to suzie]
+		 '0001104659-04-007210.txt', [talk to suize]
+		 '0001193125-04-029352.txt', 
+		 '0001193125-04-029352.txt',
+		 '0001193125-04-116401.txt',
+		 '0001193125-04-116401.txt',
+		 '0001193125-04-116401.txt',
+		 '0001193125-04-203075.txt',
+		 '0001193125-04-203075.txt',
+		 '0001193125-04-195535.txt',
+		 '0001193125-04-195535.txt',
+		 '0001193125-04-195535.txt',
+		 '0001193125-04-195535.txt',
+		 '0001193125-04-035765.txt',
+		 '0001193125-04-038916.txt',
+		 '0001193125-04-038916.txt',
+		 '0001104659-04-005974.txt',
+		 '0001104659-04-008879.txt',
+		 '0001104659-04-008879.txt',
+		 '0001104659-04-008879.txt',
+		 '0001104659-04-008879.txt',
+		 '0001104659-04-007427.txt',
+		 '0001193125-04-048937.txt',
+		 '0001193125-04-048937.txt',
+		 '0001193125-04-048937.txt',
+		 '0001193125-04-048937.txt',
+ 		 '0001193125-04-048937.txt']
+	[ ] files where a table wa snot found, and may not exist
+[ ] go through each of these examples
