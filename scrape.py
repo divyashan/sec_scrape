@@ -32,18 +32,26 @@ def scrape_files(path):
         table = scrape_table(wholetext)
         
         # If table exists, scrape row from table
+        rows = []
         if table:
             tbl_flag = 1
             rows = scrape_rows(table)
+        else:
+            # Look for non-HTML tables
+            tbl_list = scrape_text_table(wholetext)
+            if tbl_list:
+                tbl_flag = 1
+                rows = scrape_text_rows(tbl_list)
+        
+        # If row exists, append information to dataframe
+        for row in rows:
+            row_flag = 1
+            result = {'fname': fname, 'cik': cik_re, 'datadate': datadate_re, 'tbl': tbl_flag, 'row': row_flag, 
+                      'total': row['total'], '<1': row['<1'], '1-3':row['1-3'], '3-5':row['3-5'], '>5':row['>5'], 
+                      'category': row['category']}
+            results.append(result)
             
-            # If row exists, append information to dataframe
-            for row in rows:
-                row_flag = 1
-                result = {'fname': fname, 'cik': cik_re, 'datadate': datadate_re, 'tbl': tbl_flag, 'row': row_flag, 
-                          'total': row['total'], '<1': row['<1'], '1-3':row['1-3'], '3-5':row['3-5'], '>5':row['>5'], 
-                          'category': row['category']}
-                results.append(result)
-
+            
         # Append null row for file with no found table or no found row
         if (tbl_flag == 0) or (row_flag == 0):
             result = {'fname': fname, 'cik': cik_re, 'datadate': datadate_re, 'tbl': tbl_flag, 'row': row_flag, 

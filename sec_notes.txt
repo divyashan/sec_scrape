@@ -21,87 +21,146 @@ and the table for this one should be the table after the '19 years' statement: h
 
 ----- check in with suzie 5/28/2019 -----
 
+
+- tables that need the millions v thousands check:
+	- 0001104659-04-007271.txt	
+	- 0001193125-04-030895.txt	
+	- 0001193125-04-030895.txt	
+	- 0001193125-04-030895.txt	
+	- 0001104659-04-007464.txt	
+	- 0000950124-04-000754.txt	
+	- 0001193125-04-163259.txt	
+	- 0001193125-04-029352.txt	
+	- 0001193125-04-029352.txt	
+	- 0000047288-04-000009.txt	
+	- 0001193125-04-195535.txt	
+	- 0001193125-04-038916.txt	
+	- 0001104659-04-008879.txt	
+	- 0001104659-04-008933.txt	
+
+
+- rows that needed to be checked (and finisehd)
+	- torvec : 0001063197
+	- 2, 3 done
+	- https://www.sec.gov/Archives/edgar/data/1070772/000089256903002251/a93289e10vk.htm -- is this the type of table you'd like me to scrape?
+	- 5 done
+
+
+32/55 companies follow the basic format
+20/55 companies have a table with a problematic row
+2/55 companies do not have a table that can be detected
+1/55 comapnies definitely do not have the table in the file
+
+
+----
+
+40/55 companies scraped
+12/55 comapnies have a table with a problematic row
+2/55 companies do not have a table that can be detected
+1/55 comapnies definitely do not have the table in the file
+
+of those 12:
+
+	- https://www.sec.gov/Archives/edgar/data/75362/000110465904007210/ba_10k.htm: can't find the table in this one
+		- PACCAR, ignore
+	- 0000754009-04-000086.txt	
+		- transposed table, probably not table tags....
+	- https://www.sec.gov/Archives/edgar/data/1053178/000110465904032708/a04-12212_110k.htm
+		- 0001104659-04-032708.txt
+		- doesn't include 3-5 years, throws the parser off
+		- put after 4 in after 5 years, leave 3-5 empty
+	- 0001104659-04-030276.txt	
+		- this one really did have a table but no row
+		- https://www.sec.gov/Archives/edgar/data/855581/000110465904030276/a04-11300_110k.htm
+		- good!
+	- and torvec is in there
+
+main improvements: 
+- added header detection for each of these tables
+- some really big tables get the same score as the real table - improved the most likely table to address that
+- added transportation to the fields to sense
+- added logic for papers that have 8 columns - for each year 
+- added logic for papers that have a different position for total column
+- manually looked through around 20 filings
+
+
+----
+
+43/55 companies scraped
+8/55 companies have a table with a problematic row
+2/55 companies do not have a table that can be detected
+2/55 comapnies have tables, but no rows
+
 todos
-	[ ] find out if it says 'millions' in the nearby text or 'thousands'
+	[X] 10 files (8 table + problematic row) to make list of issues
 	[ ] detecting tables with no table tags
+	[ ] take care of transpose
+	[ ] add in logic for after 4 years
+	[ ] find out if it says 'millions' in the nearby text or 'thousands'
+	[ ] run on 2005 directory
 
 
-[ ] run initial scraping code
-[ ] identify files that need a second look
-	[ ] files where a table was found, but no correct row
-		['0000007332-04-000020.txt', [good - had to check for other words in tables, rank by occurrence & not nubmer]
-		 '0001047469-04-007791.txt', 
-		 '0001193125-04-035483.txt',
-		 '0001104659-04-018342.txt',
-		 '0000007536-04-000009.txt',
-		 '0001047469-04-035975.txt',
-		 '0001193125-04-035633.txt',
-		 '0001104659-04-007428.txt',
-		 '0000945234-04-000159.txt',
-		 '0001193125-04-054031.txt',
-		 '0001193125-04-031291.txt',
-		 '0001104659-04-032708.txt',
-		 '0000047288-04-000009.txt',
-		 '0001085653-04-000023.txt',
-		 '0001193125-04-006231.txt',
-		 '0001193125-04-155723.txt',
-		 '0001104659-04-009633.txt',
-		 '0001104659-04-030276.txt',
-		 '0001104659-04-008933.txt',
-		 '0000950134-04-003387.txt',
-		 '0001193125-04-193919.txt',
-		 '0000773141-04-000004.txt',
-		 '0000805264-04-000007.txt']
-		 '0001063197-04-000009.txt' - can't find the table, could be 	
-	[ ] files where a table was found and the row was found, but there was a different problem
-		 '0001104659-04-007271.txt', [good] 
-		 '0001104659-04-007271.txt', [good]
-		 '0001193125-04-051895.txt', [good]
-		 '0001193125-04-030895.txt', [good]
-		 '0001193125-04-030895.txt', [good]
-		 '0001193125-04-030895.txt', [good]
-		 '0001047469-04-014114.txt', [good]
-		 '0001047469-04-014114.txt', [good]
-		 '0001047469-04-014114.txt', [good]
-		 '0001193125-04-053937.txt', [good]
-		 '0001193125-04-053937.txt', [good]
-		 '0001104659-04-007464.txt', [good]
-		 '0001104659-04-007464.txt', [good]
-		 '0000910647-04-000122.txt', [good]
-		 '0000910647-04-000122.txt', [good]
-		 '0001104659-04-007074.txt', [good]
-		 '0001104659-04-007074.txt', [good]
-		 '0001104659-04-007074.txt', [good]
-		 '0001104659-04-007074.txt', [good]
-		 '0000950124-04-000754.txt', [good]
-		 '0001193125-04-163259.txt', [good]
-		 '0001193125-04-163259.txt', [good]
-		 '0001104659-04-007210.txt', [talk to suzie]
-		 '0001104659-04-007210.txt', [talk to suize]
-		 '0001193125-04-029352.txt', 
-		 '0001193125-04-029352.txt',
-		 '0001193125-04-116401.txt',
-		 '0001193125-04-116401.txt',
-		 '0001193125-04-116401.txt',
-		 '0001193125-04-203075.txt',
-		 '0001193125-04-203075.txt',
-		 '0001193125-04-195535.txt',
-		 '0001193125-04-195535.txt',
-		 '0001193125-04-195535.txt',
-		 '0001193125-04-195535.txt',
-		 '0001193125-04-035765.txt',
-		 '0001193125-04-038916.txt',
-		 '0001193125-04-038916.txt',
-		 '0001104659-04-005974.txt',
-		 '0001104659-04-008879.txt',
-		 '0001104659-04-008879.txt',
-		 '0001104659-04-008879.txt',
-		 '0001104659-04-008879.txt',
-		 '0001104659-04-007427.txt',
-		 '0001193125-04-048937.txt',
-		 '0001193125-04-048937.txt',
-		 '0001193125-04-048937.txt',
-		 '0001193125-04-048937.txt',
- 		 '0001193125-04-048937.txt']
-	[ ] files where a table wa snot found, and may not exist
-[ ] go through each of these examples
+
+--- check in w suzie ---
+
+
+[X] 0001063197 - torvec, no file
+[X] 0000075362 - paccar, looked at with suzie - not an issue
+[X] 0000855581 - correctly classified - table exists, no row
+
+
+[X] 0000754009 - transposed table, with dashes 
+	- waiting for suzie to look for the corresponding pdf file
+	- email with suzie said there is no table in the text file
+[X] 0001053178 - after four years error
+[X] 0001085653 - wrong table
+[X] 0000832428 - wrong table
+[ ] 0001099668 - 
+	- ask suzie what bins to put 1-5 years in? split it in two?
+	- also getting the wrong table..
+
+[ ] 0000733269 - table with dashes
+[ ] 0000706015 - table is just in text
+
+emailed suzie for feedback on the rows
+
+notes on fixes: 
+
+0001106935 - actually just got the wrong table - fixed now
+0000740260 - no row
+0001053178 - fixed after four years error
+0001085653 - wrong table - added a keyword to the most likely table filter (long term in addition to long-term)
+0000832428 - wrong table
+	- https://www.sec.gov/Archives/edgar/data/832428/000119312504038916/d10k.htm
+	- another one where web doesn't match text - no table inside of document
+
+
+left to do:
+	- finish text table parsing function
+	- see if i can get that commercial/agricultural table in 0001099668
+	- email suzie for text file of the ebay filing
+	- run on all 2005 files
+
+-- next iteration -- 
+
+0001106935 - actually just got the wrong table - fixed now
+	- had a table with 7 rows instead of 5, 6, or 8
+0001099668 - commercial agricultural table
+	- count it as a lost cause; we would end up getting a lot of other garbage if we tried to include this one
+0000832428 
+	- this one doesn't have the same text table that the pdf filing does
+	- https://www.sec.gov/Archives/edgar/data/832428/000119312504038916/d10k.htm
+
+
+-----------------------------
+
+-- next iteration --
+0000855581
+
+
+
+tasks left to handle: 
+	[ ] 0000834162 -- transposed
+	[ ] 0001065088 -- transpose
+	[ ] different denominations 
+	[ ] run on all 2005 files
