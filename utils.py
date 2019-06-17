@@ -2,35 +2,64 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import numpy as np
 import re
+import itertools
+import six
 
-# def table_denomination(table):
-    # searches through table text for thous or mill or bill
-    # if none of these are found, looks at the parent element for mentions of these
-    # otherwise, assumes that these rows are reporting raw values (maybe include a check that they're in a certain range)
+from row_utils import *
 
-# def detect_transpose(table):
-    # check if table is transposed or not
-    # 
+def get_multiplier_from_tbl_list(table_list):
+    table_string = ' '.join([' '.join(row) for row in table_list])
+    if 'thousands' in table_string:
+        return 1000
+    elif 'millions' in table_string:
+        return 1000000
+    elif 'billions' in table_string:
+        return 1000000
+    return 1
 
-row_kws = ["advertis","aircraft","build","buy","capacit","capex","capital","commercial","consult",
-          "clinical","collaborat","construct","consumer","customer","deliver","develop","distribut",
-          "drug","engineer","equipment","estate","exclusiv","expand","expansion","facility","facilities",
-          "factory","factories","fuel","hardware","infrastructur","innovat","invent","invest","joints+venture",
-          "land","license","licensing","manufactur","marketing","material","merchandis","operat","outsourc",
-          "patent","plant","procure","product","project","property","properties","purchas","research","research",
-          "R & D","right","royalt","science","scientist","sell","software","store","sponsor","storage","supplie",
-          "supply","technology","truck","vehicle", "transportation"]
+def get_multiplier_from_tbl(table):
+    # Look at table string
+    table_list = table_to_list(table)
+    multiplier = get_multiplier_from_tbl_list(table_list)
+    if multiplier > 1:
+        return multiplier
+    
+    # Look at preceding text
+    n_prev_siblings = 6
+    preceding_text = ' '.join([str(x) for x in itertools.islice(table.previous_siblings, n_prev_siblings)])
+    thousands_idx = preceding_text.index('thousands') if 'thousands' in preceding_text else float('inf')
+    millions_idx = preceding_text.index('millions') if 'millions' in preceding_text else float('inf')
+    billions_idx = preceding_text.index('billions') if 'billions' in preceding_text else float('inf')
+    
+    multipliers = [1000, 1000000, 1000000000]
+    multiplier_idxs = [thousands_idx, millions_idx, billions_idx]
+    if np.any([x < float('inf') for x in multiplier_idxs]):
+        # Choose earliest occuring denomination
+        return multipliers[np.argmin(multiplier_idxs)]
+    
+    # Default return 1
+    return 1
+
+
+def transpose_list(tbl_list):
+    return list(map(list, six.moves.zip_longest(*tbl_list, fillvalue='-')))
+
 def table_to_list(table):
     # Given a table in HTML format, return a list of lists 
-    # TODO: make sure table is returned in row format
     data = []
     rows = table.find_all('tr')
     for row in rows:
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
         row = [ele for ele in cols if ele]
-        data.append([ele for ele in cols if ele]) 
-    return data
+        row = [ele for ele in cols if ele]
+        if len(row) > 0:
+            data.append(row) 
+    
+    if is_transposed(data):
+        return combine_text_fields(transpose_list(data))
+    
+    return combine_text_fields(data)
 
 def get_table_headers(table):
     tbl_list = table_to_list(table)
@@ -53,10 +82,9 @@ def get_table_headers(table):
     return final_table_headers
 
 def get_table_headers_from_list(tbl_list):
-    hdr_kws = ['2005', '2006', '2007', '2008', '2009', 'thereafter', 'total']
     for row in tbl_list:
         row_str = ' '.join(row)
-        if any(hdr_kw in row_str for hdr_kw in hdr_kws):
+        if any(hdr_kw in row_str for hdr_kw in HDR_KWS):
             return row
     
 def hasNumbers(inputString):
@@ -65,16 +93,29 @@ def hasNumbers(inputString):
 def hasKeywords(inputString, keywords):
     return any([word in inputString for word in keywords])
 
-def clean_row(row):
-    row = [x for x in row if (x != '$')] # remove lone $ entries
-    row = [a.replace('$', '') for a in row] 
-    row = [a.replace(',', '') for a in row] 
-    row = [x for x in row if (x != '')]
-    row = [a.replace('\x97', '0') for a in row]
-    row = [a.replace('\xa0', '') for a in row]
-    row = [a.replace('-', '0') for a in row]
+def is_transposed(tbl_list):
+    # True if any header keywords appear in first row
+    first_col = [x[0] for x in tbl_list if (len(x) > 0)]
+    n_hdr_kws = sum([any([hdr_kw in x for x in first_col]) for hdr_kw in HDR_KWS_WITHOUT_TOTAL])
+    return (n_hdr_kws > 1)
 
-    return row
+def combine_text_fields(lines):
+    tbl_list = []
+    for i, line in enumerate(lines):
+        new_line = []
+        for j, word in enumerate(line):
+            if (hasNumbers(word)) or ('-' in word):
+                new_line.append(word)
+            else:
+                if len(new_line) > 0 and j > 0:
+                    if not(hasNumbers(new_line[len(new_line)-1])):
+                        new_line[len(new_line)-1] = new_line[len(new_line)-1] + " " + word
+                    else:
+                        new_line.append(word)
+                else:
+                    new_line.append(word)
+        tbl_list.append(new_line)
+    return tbl_list
 
 def most_likely_table(tables):
     # Given a list of tables, identify the most likely table to summarize contractual obligations
@@ -135,37 +176,31 @@ def scrape_rows(tbl):
         if len(row) == 0:
             continue
         row = clean_row(row)
-        if any(row_kw in row[0] for row_kw in row_kws):
+        if any(row_kw in row[0] for row_kw in ROW_KWS):
             # TODO: ensure that all the columns add up to 'total'
-            # TODO: multiple by 1000 in case value reported < 100            
+            # TODO: multiple by 1000 in case value reported < 100  
             try:
-                if len(row) == 5:
-                    headers = get_table_headers(tbl)
-                    total_idx = [idx for idx, s in enumerate(headers) if 'total' in s][0]
-                    four_condition = any([('4' in x) or ('four' in x) for x in headers])
-                    if total_idx < 3:
-                        rows.append({'total': float(row[1]), '<1':row[2], '1-3':row[3], '3-5':'-', '>5':row[4], 'category':row[0]})
-                    else:
-                        rows.append({'total': float(row[4]), '<1':row[1], '1-3':row[2], '3-5':'-', '>5':row[3], 'category':row[0]})
-                        
-
-                
-                if len(row) == 6:
-                    rows.append({'total': float(row[1]), '<1': row[2], '1-3': row[3], '3-5':row[4], '>5':row[5], 'category': row[0]})
-                
-                if len(row) == 7:
-                    rows.append({'total': float(row[1]), '<1':row[2], '1-3':row[3] + row[4], '3-5': row[5], '>5': row[6], 'category': row[0]})
-                if len(row) == 8:
+              
+                hdrs = get_table_headers_from_list(tbl_list)
+                if not hdrs:
                     hdrs = get_table_headers(tbl)
-                    total_idx = [idx for idx, s in enumerate(hdrs) if 'total' in s][0]
-                    if total_idx > 3:
-                        # Total is at the end of the table
-                        rows.append({'total': int(row[7]), '<1':float(row[1]), '1-3':float(row[2]) + float(row[3]), '3-5': float(row[4]) + float(row[5]), '>5': row[6], 'category': row[0]})
+                total_idx = -1
+                total_idxs = [idx for idx, s in enumerate(hdrs) if 'total' in s]
+                if len(total_idxs):
+                    total_idx = total_idxs[0]
+#                 print("HEADER: ", hdrs)
+#                 print("total idx: ", total_idx)
+#                 print("Row: ", row)
+                if len(row) in process_row_fn.keys():
+                    rows.append(process_row_fn[len(row)](row, total_idx))
+                elif len(row) > 8 and len(hdrs) > 8: 
+                    processed_row = process_row_longer(row, total_idx, hdrs)
+                    if processed_row:
+                        rows.append(processed_row)
                     else:
-                        # Total is at the beginning of the table
-                        rows.append({'total': float(row[1]), '<1':float(row[2]), '1-3':float(row[3]) + float(row[4]), '3-5': float(row[5]) + float(row[6]), '>5': row[7], 'category': row[0]})
-            except:
-                print("Unknown error!")
+                        print("Unable to parse longer row")
+            except Exception as e:
+                print("Unknown error: ", e)
                 pass
     return rows
 
@@ -182,57 +217,31 @@ def scrape_text_table(wholetext):
     final_text_chunk = text_chunks[np.argmax(chunk_scores)]
     lines = final_text_chunk.split('\n')
     lines = [x for x in lines if (hasNumbers(x))]
-    keywords = ['2005', '2006', '2007', '2008', '2009', 'thereafter', 'total']
-    keywords = keywords + row_kws
+    keywords = HDR_KWS + ROW_KWS
     lines = [x for x in lines if (hasKeywords(x, keywords))]
     lines = [x.split(' ') for x in lines]
     for i, line in enumerate(lines):
         lines[i] = list(filter(lambda a: (a != '') and (a != '$') and (a !='<u>') and (a !='</u>'), line))    
     tbl_list = []
-    entry = None
-    for i, line in enumerate(lines):
-        new_line = []
-        for j, word in enumerate(line):
-            if (hasNumbers(word)) or ('-' in word):
-                new_line.append(word)
-            else:
-                if len(new_line) > 0 and j > 0:
-                    if not(hasNumbers(new_line[len(new_line)-1])):
-                        new_line[len(new_line)-1] = new_line[len(new_line)-1] + " " + word
-                    else:
-                        new_line.append(word)
-                else:
-                    new_line.append(word)
-        tbl_list.append(new_line)
+    tbl_list = combine_text_fields(lines)
     return lines, tbl_list
     
     
 def scrape_text_rows(lines, tbl_list):
     rows = []
     for row in tbl_list:
-        if any([word in row[0] for word in row_kws]):
+        if any([word in row[0] for word in ROW_KWS]):
             if ('following' not in row[0]):
                 rows.append(clean_row(row))
 
+    # TODO : check if transposed
     row_dicts = []
     hdr = get_table_headers_from_list(lines)
     total_idx = [idx for idx, s in enumerate(hdr) if 'total' in s][0]
     if len(rows[0]) == 6:
         for row in rows:
-            if total_idx < 3:
-                row_dicts.append({'total': int(row[1]), '<1':row[2], '1-3':row[3], 
-                             '3-5': row[4], '>5': row[5], 'category': row[0]})
-            else:
-                row_dicts.append({'total': int(row[5]), '<1':row[1], '1-3':row[2], 
-                             '3-5': row[3], '>5': row[4], 'category': row[0]})
+            row_dicts.append(process_row_len_6(row, total_idx))
     elif len(rows[0]) == 8:
         for row in rows:
-            if total_idx > 3:
-                # Total is at the end of the table
-                row_dicts.append({'total': int(row[7]), '<1':float(row[1]), '1-3':float(row[2]) + float(row[3]), 
-                             '3-5': float(row[4]) + float(row[5]), '>5': row[6], 'category': row[0]})
-            else:
-                # Total is at the beginning of the table
-                row_dicts.append({'total': float(row[1]), '<1':float(row[2]), '1-3':float(row[3]) + float(row[4]), 
-                             '3-5': float(row[5]) + float(row[6]), '>5': row[7], 'category': row[0]})
+            row_dicts.append(process_row_len_8(row, total_idx))
     return(row_dicts)

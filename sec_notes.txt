@@ -156,11 +156,31 @@ left to do:
 
 -- next iteration --
 0000855581
-
-
+0000832428	
+0001096352
+0001099668
+0001065088
+0000754009
 
 tasks left to handle: 
 	[ ] 0000834162 -- transposed
 	[ ] 0001065088 -- transpose
+	[ ] 0001096352 -- new file
 	[ ] different denominations 
 	[ ] run on all 2005 files
+
+
+- 0001193125-04-038916.txt, 0000832428
+	- txt file doesn't have contractual table
+- 0001096352 -- fixed transpose detection, was finding the wrong tables
+- 0001099668 -- commercial agriculture table (there is no way)
+
+
+ok finished all the files in the 2004 directory
+takes care of transposes
+
+* still need to multiply by different denominators
+	- default will be by 1
+	- otehrwise look for thousands/millions/billions in the surrounding text
+	- if that info is there, multiply all values by that number
+
