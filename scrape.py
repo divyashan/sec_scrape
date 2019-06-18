@@ -7,7 +7,7 @@ import re
 from bs4 import BeautifulSoup
 from utils import *
 
-def scrape_files(path):
+def scrape_files(path, save_file_name):
     fnames = os.listdir(path)
     fnames = [x for x in fnames if ('DS_Store' not in x)]
     results = []
@@ -57,6 +57,6 @@ def scrape_files(path):
                       'total': '-', '<1': '-', '1-3':'-', '3-5':'-', '>5':'-', 'multiplier': multiplier}
 
             results.append(result)
-    pd.DataFrame(results).to_csv('scraped_data_df')
+    pd.DataFrame(results).to_csv(save_file_name)
     
-scrape_files(sys.argv[1])
+scrape_files(sys.argv[1], sys.argv[2])

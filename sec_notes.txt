@@ -178,6 +178,7 @@ tasks left to handle:
 
 ok finished all the files in the 2004 directory
 takes care of transposes
+accountign for when the total column doesn't exist
 
 * still need to multiply by different denominators
 	- default will be by 1

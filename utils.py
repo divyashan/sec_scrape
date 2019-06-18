@@ -234,7 +234,6 @@ def scrape_text_rows(lines, tbl_list):
             if ('following' not in row[0]):
                 rows.append(clean_row(row))
 
-    # TODO : check if transposed
     row_dicts = []
     hdr = get_table_headers_from_list(lines)
     total_idx = [idx for idx, s in enumerate(hdr) if 'total' in s][0]
