@@ -7,6 +7,16 @@ import six
 
 from row_utils import *
 
+def get_cik(wholetext):
+    cikbase = re.search(r"CENTRAL INDEX KEY:\s*?\d{10}\b", wholetext, re.I).group()
+    cik_re = re.split(r'\s', cikbase)[-1]        
+    return cik_re
+
+def get_datadate(wholetext):
+    datadatebase = re.search(r"CONFORMED PERIOD OF REPORT:\s*?\d{8}\b", wholetext, re.I).group() 
+    datadate_re = re.split(r'\s', datadatebase)[-1]  
+    return datadate_re
+
 def get_multiplier_from_tbl_list(table_list):
     table_string = ' '.join([' '.join(row) for row in table_list])
     if 'thousands' in table_string:
@@ -57,7 +67,7 @@ def table_to_list(table):
             data.append(row) 
     
     if is_transposed(data):
-        return combine_text_fields(transpose_list(data))
+        return (transpose_list(data))
     
     return combine_text_fields(data)
 
@@ -231,16 +241,21 @@ def scrape_text_rows(lines, tbl_list):
     rows = []
     for row in tbl_list:
         if any([word in row[0] for word in ROW_KWS]):
-            if ('following' not in row[0]):
+            if ('following' not in row[0]) and ('less than' not in row[0]):
                 rows.append(clean_row(row))
 
     row_dicts = []
     hdr = get_table_headers_from_list(lines)
     total_idx = [idx for idx, s in enumerate(hdr) if 'total' in s][0]
-    if len(rows[0]) == 6:
-        for row in rows:
-            row_dicts.append(process_row_len_6(row, total_idx))
-    elif len(rows[0]) == 8:
-        for row in rows:
-            row_dicts.append(process_row_len_8(row, total_idx))
+    try: 
+        if len(rows[0]) == 6:
+            for row in rows:
+                row_dicts.append(process_row_len_6(row, total_idx))
+        elif len(rows[0]) == 8:
+            for row in rows:
+                row_dicts.append(process_row_len_8(row, total_idx))
+    except Exception as e:
+        print("Unknown error: ", e)
+        pass
+        
     return(row_dicts)

@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import sys
 import os
-import re
 
 from bs4 import BeautifulSoup
 from utils import *
@@ -14,11 +13,8 @@ def scrape_files(path, save_file_name):
     for fname in fnames:
         test_f = open(path + '/' + fname)
         wholetext = test_f.read()
-        cikbase = re.search(r"CENTRAL INDEX KEY:\s*?\d{10}\b", wholetext, re.I).group()
-        cik_re = re.split(r'\s', cikbase)[-1]        
-
-        datadatebase = re.search(r"CONFORMED PERIOD OF REPORT:\s*?\d{8}\b", wholetext, re.I).group() 
-        datadate_re = re.split(r'\s', datadatebase)[-1]  
+        cik_re = get_cik(wholetext)
+        datadate_re = get_datadate(wholetext)  
 
         wholetext = wholetext.lower()
         tbl_flag = 0 # 1 if "contractual obligations" table exists
