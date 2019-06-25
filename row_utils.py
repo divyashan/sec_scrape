@@ -48,12 +48,9 @@ process_row_fn = {5: process_row_len_5, 6: process_row_len_6, 7: process_row_len
 
 def process_row_longer(row, total_idx, hdrs):
     tafter = [idx for idx, s in enumerate(hdrs) if 'thereafter' in s]
-    print('hdrs', hdrs)
-    print('thereafter idx', tafter)
     if len(tafter) == 0:
         return None
     pruned_row = row[:tafter[0]+1]
-    print("Pruned: ", pruned_row)
     if len(pruned_row) in process_row_fn.keys():
         return process_row_fn[len(pruned_row)](row, total_idx)
     else:
@@ -72,5 +69,4 @@ def clean_row(row):
         float_attempt = [float(x) for x in row[1:]]
         return row
     except:
-        print(row)
         return None

@@ -9,6 +9,8 @@ import six
 
 from row_utils import *
 
+debug = False
+
 def get_cik(wholetext):
     cikbase = re.search(r"CENTRAL INDEX KEY:\s*?\d{10}\b", wholetext, re.I).group()
     cik_re = re.split(r'\s', cikbase)[-1]        
@@ -179,7 +181,8 @@ def scrape_table(wholetext):
     parsed_html = BeautifulSoup(wholetext)
     tables = parsed_html.find_all('table')
     if len(tables) == 0:
-        print("No HTML tables!")
+        if debug:
+            print("No HTML tables!")
         return None
     
     # Search for 2003 regulation table
@@ -188,12 +191,14 @@ def scrape_table(wholetext):
     contractual_tables = [table for table in tables if (kw in table.text for kw in keywords)]
     contractual_tables = [table for table in tables if len(table.text) < 2000] # remove tables of paragraphs
     if len(contractual_tables) == 0:
-        print("No contractual tables!")
+        if debug:
+            print("No contractual tables!")
         return None
     
     # Identify most likely table
     table = most_likely_table(contractual_tables)
-    print("Found a table") 
+    if debug:
+        print("Found a table") 
     return table
 
 def scrape_rows(tbl):
@@ -228,16 +233,19 @@ def scrape_rows(tbl):
                     if processed_row:
                         rows.append(processed_row)
                     else:
-                        print("Unable to parse longer row")
+                        if debug:
+                            print("Unable to parse longer row")
             except Exception as e1:
-                print("Unknown error 1: ", e1, "-- processing as longer row")
+                if debug:
+                    print("Unknown error 1: ", e1, "-- processing as longer row")
                 if len(row) >=8 or len(hdrs) > 8:
                     try:
                         processed_row = process_row_longer(row, total_idx, hdrs)
                         if processed_row:
                             rows.append(processed_row)
                     except Except as e2:
-                        print("Error: ", e2)
+                        if debug:
+                            print("Error: ", e2)
     return rows
 
 
@@ -277,12 +285,10 @@ def scrape_text_rows(lines, tbl_list):
                 if cleaned_row:
                     rows.append(cleaned_row)
 
-    print("ROWS")
-    print(rows)
+
     row_dicts = []
     hdr = get_table_headers_from_list(lines)
     if not hdr:
-        print("Returning: ", row_dicts)
         return row_dicts
     
     try:
@@ -290,8 +296,7 @@ def scrape_text_rows(lines, tbl_list):
         total_idxs = [idx for idx, s in enumerate(hdr) if 'total' in s]
         if len(total_idxs):
             total_idx = total_idxs[0]
-        print("total_idx: ", total_idx)
-        print(rows[1])
+
         if len(rows[0]) == 6:
             for row in rows:
                 row_dicts.append(process_row_len_6(row, total_idx))
@@ -299,7 +304,8 @@ def scrape_text_rows(lines, tbl_list):
             for row in rows:
                 row_dicts.append(process_row_len_8(row, total_idx))
     except Exception as e:
-        print("Unknown error: ", e)
+        if debug:
+            print("Unknown error: ", e)
         
         
     return(row_dicts)

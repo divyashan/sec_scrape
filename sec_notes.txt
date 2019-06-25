@@ -263,3 +263,11 @@ accountign for when the total column doesn't exist
 
 [X] 96988: text table
 [X] 0000015486 - text table that needs to be parsed
+
+
+
+todo list:
+[ ] keep track of progress on files
+[ ] run on the others directory
+[ ] add in file report function
+
