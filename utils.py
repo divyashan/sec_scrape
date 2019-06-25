@@ -203,6 +203,8 @@ def scrape_rows(tbl):
         if len(row) == 0:
             continue
         row = clean_row(row)
+        if not row: 
+            continue
         if any(row_kw in row[0] for row_kw in ROW_KWS):
             # TODO: ensure that all the columns add up to 'total'
             # TODO: multiple by 1000 in case value reported < 100  
