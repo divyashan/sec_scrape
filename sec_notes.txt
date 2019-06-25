@@ -213,10 +213,6 @@ accountign for when the total column doesn't exist
 	- transposing tables messes with rows that odn't have the same number of elements
 [X] 871763: table exists, need to investigate
 	- had to take out cast to int, changed it to float
-[ ] 0001074433 -- no relevant tables, ask suzie about it
-[ ] 1030839: can't locate the file on secexplorer
-
-
 [X] 1287750: table exists in the pdf but not in the text file
 	- table exists (and we find the right table) but no row
 	- unless 'credit facility payable' is a row we want to scrape
@@ -226,12 +222,39 @@ accountign for when the total column doesn't exist
 	- fixed parse table function to handle extra columns
 
 
+[ ] 0001074433 -- no relevant tables, ask suzie about it
+[ ] 1030839: can't locate the file on secexplorer
+[ ] 217346: table exists in the pdf but not in the text file
+	- the whole thing is a table
+	- lost cause
 
-[ ]  217346: table exists in the pdf but not in the text file
-	- the whole thing is a stupid table
+
 
 [ ] 1012127: text table
 [ ] 96988: text table
 [ ] 1109279: text based table
 [ ] 764794: text table with only 3 columns
 
+27 new files
+
+3 are parsed okay off the bat 
+11 where table is detected but row is not -- of these, 8 fall into cases we've discussed before and 3 are text tables that need to be parsed correctly
+14 where no table is detected 
+
+20021102 -- no clear table
+0000054291 - no clear table
+0000077543 -- no clear table
+	- https://www.sec.gov/Archives/edgar/data/77543/000007754303000006/form10k_2002.htm
+
+[ ] 0000040570 - text table that needs to be parsed
+[ ] 0000015486 - text table that needs to be parsed
+	- https://www.sec.gov/Archives/edgar/data/15486/000001548603000002/tenk2002.txt
+	- occurs thrice
+- 0000037914 -- text table, but i don't think we can get this one
+	- https://www.sec.gov/Archives/edgar/data/37914/000003791403000002/p10k2002.txt
+- 0000009389 -- no table in the html file or text file
+	- https://www.sec.gov/Archives/edgar/data/9389/000000938903000044/f10k_2002.htm
+- 0000051303 -- maybe has a transposed text table, but no relevant rows
+	- https://www.sec.gov/Archives/edgar/data/51303/000005130303000014/form10kfinal03.htm
+- 0000022551 -- only a table for long-term debt, which we're not interested in
+	- https://www.sec.gov/Archives/edgar/data/22551/000002255103000001/doc1.txt

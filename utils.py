@@ -249,6 +249,8 @@ def scrape_text_table(wholetext):
             for word in keywords:
                 if word in text_chunk:
                     chunk_scores[i] += 1
+        #return text_chunks, chunk_scores
+
         final_text_chunk = text_chunks[np.argmax(chunk_scores)]
         lines = final_text_chunk.split('\n')
         lines = [x for x in lines if (hasNumbers(x))]
@@ -269,8 +271,12 @@ def scrape_text_rows(lines, tbl_list):
     for row in tbl_list:
         if any([word in row[0] for word in ROW_KWS]):
             if ('following' not in row[0]) and ('less than' not in row[0]):
-                rows.append(clean_row(row))
+                cleaned_row = clean_row(row)
+                if cleaned_row:
+                    rows.append(cleaned_row)
 
+    print("ROWS")
+    print(rows)
     row_dicts = []
     hdr = get_table_headers_from_list(lines)
     if not hdr:
@@ -278,8 +284,12 @@ def scrape_text_rows(lines, tbl_list):
         return row_dicts
     
     try:
-        total_idx = 10
-        total_idx = [idx for idx, s in enumerate(hdr) if 'total' in s][0]
+        total_idx = -1
+        total_idxs = [idx for idx, s in enumerate(hdr) if 'total' in s]
+        if len(total_idxs):
+            total_idx = total_idxs[0]
+        print("total_idx: ", total_idx)
+        print(rows[1])
         if len(rows[0]) == 6:
             for row in rows:
                 row_dicts.append(process_row_len_6(row, total_idx))
