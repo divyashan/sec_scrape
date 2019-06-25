@@ -51,6 +51,6 @@ def scrape_files(path, save_file_name):
                       'total': '-', '<1': '-', '1-3':'-', '3-5':'-', '>5':'-', 'multiplier': multiplier}
 
             results.append(result)
-    pd.DataFrame(results).to_csv(save_file_name)
+        pd.DataFrame(results).to_csv(save_file_name)
     
 scrape_files(sys.argv[1], sys.argv[2])
