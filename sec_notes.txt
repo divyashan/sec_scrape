@@ -185,3 +185,53 @@ accountign for when the total column doesn't exist
 	- otehrwise look for thousands/millions/billions in the surrounding text
 	- if that info is there, multiply all values by that number
 
+-------------------
+73/18 files in the 2005 folder; 
+
+[ ] 1017172: wrong table; table is much smaller than the other ones
+- 1016169: got the table; there really is no row
+- 895347: no table
+- 1166041: got the table; there is no row
+[ ] 871763: table exists, need to investigate
+- 879555: got the table; there is no row
+[ ] 1074433: can't find the table
+[ ]  217346: table exists, need to investigate
+- 753281: table exists, there is no row
+[ ] 1030839: can't locate the file on secexplorer
+[ ] 1287750: maybe the wrong table? but likely just no row
+[ ] 357020: table with 4 columns, need to investigate
+[ ] 1099291: extra columns
+- 2491: table, no rows
+
+
+12 have problems to address
+- 2 text-based tables, one with extra columns
+
+
+[X] 1017172: wrong table; table is much smaller than the other ones
+	- had to fix most-likely-tables function
+	- transposing tables messes with rows that odn't have the same number of elements
+[X] 871763: table exists, need to investigate
+	- had to take out cast to int, changed it to float
+[ ] 0001074433 -- no relevant tables, ask suzie about it
+[ ] 1030839: can't locate the file on secexplorer
+
+
+[X] 1287750: table exists in the pdf but not in the text file
+	- table exists (and we find the right table) but no row
+	- unless 'credit facility payable' is a row we want to scrape
+[X] 357020: table exists in the pdf but not in the text file
+	- fixed most likely table function
+[X] 1099291: extra columns
+	- fixed parse table function to handle extra columns
+
+
+
+[ ]  217346: table exists in the pdf but not in the text file
+	- the whole thing is a stupid table
+
+[ ] 1012127: text table
+[ ] 96988: text table
+[ ] 1109279: text based table
+[ ] 764794: text table with only 3 columns
+

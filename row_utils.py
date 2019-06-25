@@ -24,22 +24,26 @@ def process_row_len_6(row, total_idx):
 
 def process_row_len_7(row, total_idx):
     if total_idx == -1:
-        return {'<1':row[1], '1-3':int(row[2]) + int(row[3]), '3-5': row[4], '>5': row[5], 'category': row[0]}
+        return {'<1':row[1], '1-3':float(row[2]) + float(row[3]), '3-5': row[4], '>5': row[5], 'category': row[0]}
     elif total_idx < 3:
         return {'total': float(row[1]), '<1':row[2], '1-3':row[3] + row[4], '3-5': row[5], '>5': row[6], 'category': row[0]}
     return {'total': float(row[6]), '<1':row[1], '1-3':float(row[2]) + float(row[3]), '3-5': row[4], '>5': row[5], 'category': row[0]}
 
 def process_row_len_8(row, total_idx):
     if total_idx > 3:
-        return {'total': int(row[7]), '<1':float(row[1]), '1-3':float(row[2]) + float(row[3]), '3-5': float(row[4]) + float(row[5]), '>5': row[6], 'category': row[0]}
+        return {'total': float(row[7]), '<1':float(row[1]), '1-3':float(row[2]) + float(row[3]), '3-5': float(row[4]) + float(row[5]), '>5': row[6], 'category': row[0]}
     return {'total': float(row[1]), '<1':float(row[2]), '1-3':float(row[3]) + float(row[4]), '3-5': float(row[5]) + float(row[6]), '>5': row[7], 'category': row[0]}
 
 process_row_fn = {5: process_row_len_5, 6: process_row_len_6, 7: process_row_len_7, 8: process_row_len_8}
 
 def process_row_longer(row, total_idx, hdrs):
-    if 'thereafter' not in hdrs:
+    tafter = [idx for idx, s in enumerate(hdrs) if 'thereafter' in s]
+    print('hdrs', hdrs)
+    print('thereafter idx', tafter)
+    if len(tafter) == 0:
         return None
-    pruned_row = row[:hdrs.index('thereafter')+1]
+    pruned_row = row[:tafter[0]+1]
+    print("Pruned: ", pruned_row)
     if len(pruned_row) in process_row_fn.keys():
         return process_row_fn[len(pruned_row)](row, total_idx)
     else:

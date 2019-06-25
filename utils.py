@@ -1,5 +1,7 @@
 import pandas as pd
 from bs4 import BeautifulSoup
+from operator import itemgetter 
+
 import numpy as np
 import re
 import itertools
@@ -52,6 +54,19 @@ def get_multiplier_from_tbl(table):
 
 
 def transpose_list(tbl_list):
+    if len(tbl_list) > 2: 
+        if len(tbl_list[0]) != len(tbl_list[2]):
+            # Header has one less entry than the following rows
+            # Important to preserve this as we transpose tables
+            first_row = ['HEADER']
+            first_row.extend(tbl_list[0])
+            tbl_list[0] = first_row
+        if len(tbl_list[1]) != len(tbl_list[2]):
+            # Header has one less entry than the following rows
+            # Important to preserve this as we transpose tables
+            second_row = ['HEADER']
+            second_row.extend(tbl_list[1])
+            tbl_list[1] = second_row
     return list(map(list, six.moves.zip_longest(*tbl_list, fillvalue='-')))
 
 def table_to_list(table):
@@ -67,7 +82,8 @@ def table_to_list(table):
             data.append(row) 
     
     if is_transposed(data):
-        return (transpose_list(data))
+        transposed = transpose_list(data)
+        return (combine_text_fields(transposed))
     
     return combine_text_fields(data)
 
@@ -133,7 +149,8 @@ def most_likely_table(tables):
         return tables[0]
     
     table_scores = np.zeros(len(tables))
-    keywords = ['obligations', 'lease', 'debt', 'operating', 'total', 'capital', 'long-term', 'payments', 'borrowings', 'long term']
+    keywords = ['obligations', 'leases', 'debt', 'total', 'operating', 'capital', 'long-term', 'payments due', 'borrowings', 'long term', 'due by period', '2006-2007']
+    # took out total because its a non-specific word -- if performance dips, add it back in
     
     for i, table in enumerate(tables):
         for word in keywords:
@@ -141,18 +158,18 @@ def most_likely_table(tables):
                 table_scores[i] += 1
     max_score = np.max(table_scores)
     max_idxs = np.where(table_scores == max_score)[0]
+    # for debugging
     #return table_scores, tables
 
     if len(max_idxs) == 1:
         return tables[max_idxs[0]]
     
     else:
-        min_length_table = tables[max_idxs[0]]
-        min_length = len(min_length_table.text)
+        min_length = float('inf')
         for idx in max_idxs:
             if len(tables[idx].text) < min_length:
                 min_length_table = tables[idx]
-                min_length = len(min_length_table)
+                min_length = len(min_length_table.text)
         return min_length_table
 
 def scrape_table(wholetext):
@@ -198,9 +215,10 @@ def scrape_rows(tbl):
                 total_idxs = [idx for idx, s in enumerate(hdrs) if 'total' in s]
                 if len(total_idxs):
                     total_idx = total_idxs[0]
-#                 print("HEADER: ", hdrs)
-#                 print("total idx: ", total_idx)
-#                 print("Row: ", row)
+                #print("HEADER: ", hdrs)
+                #print("total idx: ", total_idx)
+                #print("Row: ", row)
+                #print("Row length: ", len(row), len(hdrs))
                 if len(row) in process_row_fn.keys():
                     rows.append(process_row_fn[len(row)](row, total_idx))
                 elif len(row) > 8 and len(hdrs) > 8: 
@@ -209,33 +227,42 @@ def scrape_rows(tbl):
                         rows.append(processed_row)
                     else:
                         print("Unable to parse longer row")
-            except Exception as e:
-                print("Unknown error: ", e)
-                pass
+            except Exception as e1:
+                print("Unknown error 1: ", e1, "-- processing as longer row")
+                if len(row) >=8 or len(hdrs) > 8:
+                    try:
+                        processed_row = process_row_longer(row, total_idx, hdrs)
+                        if processed_row:
+                            rows.append(processed_row)
+                    except Except as e2:
+                        print("Error: ", e2)
     return rows
 
 
 def scrape_text_table(wholetext):
-    idxs =  [a.start() for a in list(re.finditer('contractual', wholetext))]
-    text_chunks = [wholetext[idx:idx+4000] for idx in idxs]
-    chunk_scores = np.zeros(len(text_chunks))
-    keywords = ['contractual obligations', 'long-term debt', 'operating leases']
-    for i,text_chunk in enumerate(text_chunks):
-        for word in keywords:
-            if word in text_chunk:
-                chunk_scores[i] += 1
-    final_text_chunk = text_chunks[np.argmax(chunk_scores)]
-    lines = final_text_chunk.split('\n')
-    lines = [x for x in lines if (hasNumbers(x))]
-    keywords = HDR_KWS + ROW_KWS
-    lines = [x for x in lines if (hasKeywords(x, keywords))]
-    lines = [x.split(' ') for x in lines]
-    for i, line in enumerate(lines):
-        lines[i] = list(filter(lambda a: (a != '') and (a != '$') and (a !='<u>') and (a !='</u>'), line))    
-    tbl_list = []
-    tbl_list = combine_text_fields(lines)
-    return lines, tbl_list
-    
+    try: 
+        idxs =  [a.start() for a in list(re.finditer('contractual', wholetext))]
+        text_chunks = [wholetext[idx:idx+4000] for idx in idxs]
+        chunk_scores = np.zeros(len(text_chunks))
+        keywords = ['contractual obligations', 'long-term debt', 'operating leases']
+        for i,text_chunk in enumerate(text_chunks):
+            for word in keywords:
+                if word in text_chunk:
+                    chunk_scores[i] += 1
+        final_text_chunk = text_chunks[np.argmax(chunk_scores)]
+        lines = final_text_chunk.split('\n')
+        lines = [x for x in lines if (hasNumbers(x))]
+        keywords = HDR_KWS + ROW_KWS
+        lines = [x for x in lines if (hasKeywords(x, keywords))]
+        lines = [x.split(' ') for x in lines]
+        for i, line in enumerate(lines):
+            lines[i] = list(filter(lambda a: (a != '') and (a != '$') and (a !='<u>') and (a !='</u>'), line))    
+        tbl_list = []
+        tbl_list = combine_text_fields(lines)
+        return lines, tbl_list
+    except Exception as e:
+        return None, None
+
     
 def scrape_text_rows(lines, tbl_list):
     rows = []
@@ -246,8 +273,13 @@ def scrape_text_rows(lines, tbl_list):
 
     row_dicts = []
     hdr = get_table_headers_from_list(lines)
-    total_idx = [idx for idx, s in enumerate(hdr) if 'total' in s][0]
-    try: 
+    if not hdr:
+        print("Returning: ", row_dicts)
+        return row_dicts
+    
+    try:
+        total_idx = 10
+        total_idx = [idx for idx, s in enumerate(hdr) if 'total' in s][0]
         if len(rows[0]) == 6:
             for row in rows:
                 row_dicts.append(process_row_len_6(row, total_idx))
@@ -256,6 +288,6 @@ def scrape_text_rows(lines, tbl_list):
                 row_dicts.append(process_row_len_8(row, total_idx))
     except Exception as e:
         print("Unknown error: ", e)
-        pass
+        
         
     return(row_dicts)

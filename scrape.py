@@ -22,20 +22,18 @@ def scrape_files(path, save_file_name):
         multiplier = 1 # 1 by default
 
         # Scrape table and rows 
+        rows = []
         table = scrape_table(wholetext)
         if table:
-            # HTML table
             tbl_flag = 1
             rows = scrape_rows(table)
             multiplier = get_multiplier_from_tbl(table)
         else:
-            # Text table
             lines, tbl_list = scrape_text_table(wholetext)
             if tbl_list:
                 tbl_flag = 1
                 rows = scrape_text_rows(lines, tbl_list)
                 multiplier = get_multiplier_from_tbl_list(tbl_list)
-
 
         # Iterate over scraped rows
         for row in rows:
