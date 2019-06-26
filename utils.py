@@ -21,6 +21,18 @@ def get_datadate(wholetext):
     datadate_re = re.split(r'\s', datadatebase)[-1]  
     return datadate_re
 
+def get_cik_done(csv_name):
+    cik_done_dict = {}
+    try: 
+        done_df = pd.read_csv(save_file_name)
+        pairs = done_df[['cik', 'datadate']].values
+        cik_done_dict = {pair[0]: [] for pair in pairs }
+        for cik, date in pairs:
+            cik_done_dict[cik].append(date)
+    except:
+        pass
+    return cik_done_dict
+
 def get_multiplier_from_tbl_list(table_list):
     table_string = ' '.join([' '.join(row) for row in table_list])
     if 'thousands' in table_string:
