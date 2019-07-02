@@ -15,6 +15,13 @@ def pad_to_len(row, target_length):
     row.extend(['0' for x in range(pad_length)])
     return row
 
+def get_total_idx(hdrs):
+    total_idx = -1
+    total_idxs = [idx for idx, s in enumerate(hdrs) if 'total' in s]
+    if len(total_idxs):
+        total_idx = total_idxs[0]
+    return total_idx
+
 
 def process_row_len_5(row, total_idx):
     row = pad_to_len(row, 5)
