@@ -251,7 +251,8 @@ accountign for when the total column doesn't exist
 	- occurs thrice
 - 0000037914 -- text table, but i don't think we can get this one
 	- https://www.sec.gov/Archives/edgar/data/37914/000003791403000002/p10k2002.txt
-- 0000009389 -- no table in the html file or text file
+- 0000009389 -- no table in the html file or text 
+file
 	- https://www.sec.gov/Archives/edgar/data/9389/000000938903000044/f10k_2002.htm
 - 0000051303 -- maybe has a transposed text table, but no relevant rows
 	- https://www.sec.gov/Archives/edgar/data/51303/000005130303000014/form10kfinal03.htm
@@ -271,3 +272,12 @@ todo list:
 [X] run on the others directory
 [X] add in file report function
 
+
+
+------
+meeting 
+
+[X] 1000s keyword for multiplier thing and 'million'
+[X] progress bar 
+[ ] add keyword changing section to row_utils, make sure there's an option for words to ignore (capital leases and operating leases)
+[ ] in between total table and total text format -- table tag 

@@ -65,15 +65,12 @@ def scrape_rows(tbl):
     for row in tbl_list:
         if len(row) == 0:
             continue
-       
         # Clean row of garbage characters
         row = clean_row(row)
-
         # If clean_row(row) returns None, this is not a valid row
         # and we continue to the next row
         if not row: 
             continue
-
         # Checks if there are any row keywords in the first row element (the category)
         if any(row_kw in row[0] for row_kw in ROW_KWS):
             try:
@@ -83,10 +80,8 @@ def scrape_rows(tbl):
                 # If hdrs is none, try identifying header from HTML-type table
                 if not hdrs:
                     hdrs = get_table_headers(tbl)
-
-  
                 total_idx = get_total_idx(hdrs)
-
+                
                 # Check how long the row is -- this determines which 
                 # row processing function we will use.
                 if len(row) in process_row_fn.keys():
@@ -136,6 +131,7 @@ def scrape_text_table(wholetext):
         #return text_chunks, chunk_scores
 
         final_text_chunk = text_chunks[np.argmax(chunk_scores)]
+        multiplier = get_multiplier_from_string(final_text_chunk)
         lines = final_text_chunk.split('\n')
         lines = [x for x in lines if (hasNumbers(x))]
         keywords = HDR_KWS + ROW_KWS
@@ -145,9 +141,9 @@ def scrape_text_table(wholetext):
             lines[i] = list(filter(lambda a: (a != '') and (a != '$') and (a !='<u>') and (a !='</u>'), line))    
         tbl_list = []
         tbl_list = combine_text_fields(lines)
-        return lines, tbl_list
+        return multiplier, lines, tbl_list
     except Exception as e:
-        return None, None
+        return None, None, None
 
     
 def scrape_text_rows(lines, tbl_list):

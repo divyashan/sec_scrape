@@ -71,7 +71,8 @@ def clean_row(row):
     row = [a.replace('\x97', '0') for a in row]
     row = [a.replace('\xa0', '') for a in row]
     row = [a.replace('-', '0') for a in row]
-    
+    row = [a.strip() for a in row]
+    print(row)
     try: 
         float_attempt = [float(x) for x in row[1:]]
         return row
