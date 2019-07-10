@@ -72,7 +72,9 @@ def scrape_rows(tbl):
         if not row: 
             continue
         # Checks if there are any row keywords in the first row element (the category)
-        if any(row_kw in row[0] for row_kw in ROW_KWS):
+        ignore_word_exists = any(row_kw in row[0] for row_kw in IGNORE_ROW_KWS)
+        keyword_exists = any(row_kw in row[0] for row_kw in ROW_KWS)
+        if keyword_exists and not ignore_word_exists:
             try:
                 # Get header from table list to properly index columns
                 hdrs = get_table_headers_from_list(tbl_list)

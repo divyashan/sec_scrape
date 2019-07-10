@@ -10,6 +10,8 @@ ROW_KWS = ["advertis","aircraft","build","buy","capacit","capex","capital","comm
 HDR_KWS = ['2005', '2006', '2007', '2008', '2009', 'thereafter', 'total', '3-5', '1-3', 'than 1', 'than 5']
 HDR_KWS_WITHOUT_TOTAL = ['2005', '2006', '2007', '2008', '2009', 'thereafter']
 
+IGNORE_ROW_KWS = ['lease', 'leases', 'benefit', 'benefits', 'pension', 'pensions']
+
 def pad_to_len(row, target_length):
     pad_length = target_length - len(row)
     row.extend(['0' for x in range(pad_length)])
@@ -72,7 +74,6 @@ def clean_row(row):
     row = [a.replace('\xa0', '') for a in row]
     row = [a.replace('-', '0') for a in row]
     row = [a.strip() for a in row]
-    print(row)
     try: 
         float_attempt = [float(x) for x in row[1:]]
         return row
