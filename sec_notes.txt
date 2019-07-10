@@ -279,5 +279,15 @@ meeting
 
 [X] 1000s keyword for multiplier thing and 'million'
 [X] progress bar 
+[X] in between total table and total text format -- table tag 
 [ ] add keyword changing section to row_utils, make sure there's an option for words to ignore (capital leases and operating leases)
-[ ] in between total table and total text format -- table tag 
+
+
+0000003333-04-000014.txt -- can't get the millions, now get the rows that relate to the construction etc
+0000004904-04-000055.txt -- gets teh right row, but not the full heading (that might just be hard), now get sthe millions
+[X] took care of all check files 
+
+----
+
+[X] add keyword changing section to row_utils, make sure there's an option for words to ignore (capital leases and operating leases)
+[X] fixed 'table.text' error
