@@ -6,11 +6,12 @@ ROW_KWS = ["advertis","aircraft","build","buy","capacit","capex","capital","comm
           "land","license","licensing","manufactur","marketing","material","merchandis","operat","outsourc",
           "patent","plant","procure","product","project","property","properties","purchas","research","research",
           "R & D","right","royalt","science","scientist","sell","software","store","sponsor","storage","supplie",
-          "supply","technology","truck","vehicle", "transportation", "obligations"]
+          "supply","technology","truck","vehicle", "transportation", "obligations", 
+          "alliance", "promote", "expenditure", "utilities", "utility", "purchase"]
 HDR_KWS = ['2005', '2006', '2007', '2008', '2009', 'thereafter', 'total', '3-5', '1-3', 'than 1', 'than 5']
 HDR_KWS_WITHOUT_TOTAL = ['2005', '2006', '2007', '2008', '2009', 'thereafter']
 
-IGNORE_ROW_KWS = ['lease', 'leases', 'benefit', 'benefits', 'pension', 'pensions']
+IGNORE_ROW_KWS = ['lease',  'benefit',  'pension',  'credit', 'minority', 'interest', 'equity', 'debt', 'loan', 'note', 'deposit']
 
 def pad_to_len(row, target_length):
     pad_length = target_length - len(row)

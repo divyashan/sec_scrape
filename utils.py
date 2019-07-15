@@ -151,7 +151,9 @@ def scrape_text_table(wholetext):
 def scrape_text_rows(lines, tbl_list):
     rows = []
     for row in tbl_list:
-        if any([word in row[0] for word in ROW_KWS]):
+        ignore_word_exists = any(row_kw in row[0] for row_kw in IGNORE_ROW_KWS)
+        keyword_exists = any(row_kw in row[0] for row_kw in ROW_KWS)
+        if keyword_exists and not ignore_word_exists:
             if ('following' not in row[0]) and ('less than' not in row[0]):
                 cleaned_row = clean_row(row)
                 if cleaned_row:
