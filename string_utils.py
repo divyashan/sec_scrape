@@ -23,7 +23,7 @@ def get_datadate(wholetext):
     return datadate_re
 
 def get_multiplier_from_string(text_chunk):
-    thou_words = ['1000s', 'thousands', '$000s']
+    thou_words = ['1000s', 'thousands', '$000s', "000s"]
     mil_words = ['1000000s', 'millions']
     bil_words = ['1000000000s', 'billions']
     
@@ -34,3 +34,9 @@ def get_multiplier_from_string(text_chunk):
     elif any([bil_word in text_chunk for bil_word in bil_words]):
         return 1000000
     return 1
+
+def clean_category_name(cname):
+    cname = cname.replace('\n', '')
+    cname = cname.replace('.', '')
+    cname = ' '.join(cname.split())
+    return cname

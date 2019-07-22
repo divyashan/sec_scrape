@@ -134,15 +134,10 @@ def scrape_text_table(wholetext):
 
         final_text_chunk = text_chunks[np.argmax(chunk_scores)]
         multiplier = get_multiplier_from_string(final_text_chunk)
-        lines = final_text_chunk.split('\n')
-        lines = [x for x in lines if (hasNumbers(x))]
-        keywords = HDR_KWS + ROW_KWS
-        lines = [x for x in lines if (hasKeywords(x, keywords))]
-        lines = [x.split(' ') for x in lines]
-        for i, line in enumerate(lines):
-            lines[i] = list(filter(lambda a: (a != '') and (a != '$') and (a !='<u>') and (a !='</u>'), line))    
-        tbl_list = []
-        tbl_list = combine_text_fields(lines)
+        lines = text_chunk_to_lines(final_text_chunk)
+        tbl_list = clean_tbl_list(lines)
+        tbl_list = combine_text_fields(tbl_list)
+        #return final_text_chunk, multiplier, lines, tbl_list
         return multiplier, lines, tbl_list
     except Exception as e:
         return None, None, None
