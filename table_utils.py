@@ -120,6 +120,8 @@ def table_to_list(table):
     rows = table.find_all('tr')
     for row in rows:
         cols = row.find_all('td')
+        if len(cols) == 0:
+            cols = row.find_all('th')
         cols = [ele.text.strip() for ele in cols]
         row = [ele for ele in cols if ele]
         row = [ele for ele in cols if ele]
@@ -130,6 +132,7 @@ def table_to_list(table):
     if is_transposed(data):
         data = transpose_list(data)
     data = combine_text_fields(data)
+
     # Combine entries that contain only text into one entry, 
     # e.g. 'purchase ', 'obligations' should be 'purchase obligations'
     # This is done to maintain alignment.
@@ -158,6 +161,15 @@ def get_table_headers(table):
     return final_table_headers
 
 def get_table_headers_from_list(tbl_list):
+    total_exists = np.zeros(len(tbl_list))
+    for i, row in enumerate(tbl_list):
+        row_str = ' '.join(row)
+        if 'total' in row_str:
+            total_exists[i] = 1
+    
+    if np.sum(total_exists) == 1:
+        return tbl_list[np.where(total_exists == 1)[0][0]]
+        
     for row in tbl_list:
         row_str = ' '.join(row)
         if any(hdr_kw in row_str for hdr_kw in HDR_KWS):
@@ -171,7 +183,13 @@ def combine_text_fields(lines):
     # This is done to maintain alignment.  
     
     tbl_list = []
+    header_found = True
     for i, line in enumerate(lines):
+        # skip header though
+        if any(hdr_kw in ' '.join(line) for hdr_kw in HDR_KWS) and header_found == False:
+            tbl_list.append(line)
+            header_found = True
+            continue
         new_line = []
         for j, word in enumerate(line):
             if (hasNumbers(word)) or ('-' in word) or ('\x97' in word):
@@ -197,7 +215,7 @@ def most_likely_table(tables):
     
     table_scores = np.zeros(len(tables))
     # Keywords used to rank the most likely table
-    keywords = ['obligations', 'leases', 'debt', 'total', 'operating', 'capital', 'long-term', 'payments due', 'borrowings', 'long term', 'due by period', '2006-2007']
+    keywords = ['obligations', 'leases', 'debt', 'total', 'operating', 'capital', 'long-term', 'payments due', 'borrowings', 'long term', 'due by period', '2006-2007', '4-5 years', '2-3 years', '1-3', '3-5', 'contractual', 'thereafter']
     
     # Counts number of keyword occurences in each table
     for i, table in enumerate(tables):
@@ -205,6 +223,8 @@ def most_likely_table(tables):
             if table.text.count(word) > 0:
                 table_scores[i] += 1
 
+    #return table_scores, tables
+                
     # Identifies table with the highest score
     max_score = np.max(table_scores)
     max_idxs = np.where(table_scores == max_score)[0]

@@ -291,3 +291,60 @@ meeting
 
 [X] add keyword changing section to row_utils, make sure there's an option for words to ignore (capital leases and operating leases)
 [X] fixed 'table.text' error
+
+
+--- 
+
+
+
+0000730255-09-000017.txt - wrong column name
+0000939057-09-000370.txt - wrong column name
+0001047469-03-010922.txt - wrong values
+0001047469-03-010922.txt - wrong vlaues
+0001437749-09-000266.txt - wrong values
+0001437749-09-001934.txt - maybe a row wasn't scraped that should be
+0001047469-03-011319.txt - values
+0001437749-09-001701.txt - not the right table
+0001437749-09-002044.txt - not the right table
+0001445260-09-000018.txt - not the right table
+0001445866-09-000016.txt - not the right table
+0001457143-09-000005.txt - row should be scraped
+
+anything where the table scraped is not the right table hasn't been addressed
+
+
+0000730255-09-000017.txt
+0000849502-09-000004.txt
+0001002105-03-000070.txt -- value
+0001047469-03-003730.txt -- value
+0001047469-03-010922.txt -- value
+0001047469-03-010922.txt -- value
+
+
+done:
+0000730255-09-000017.txt -- fixed the column for this file
+0000939057-09-000370.txt -- fixed column name & category name 
+0001437749-09-001934.txt -- remove spacing in the category names
+0001437749-09-000266.txt  -- <1 instead of >5 .. remove spaces and \n in the category variable
+	-- had to redo how the text fields are combined in each table
+0001047469-03-010922.txt  -- have to fix column names (off by one)
+0001047469-03-011319.txt - columns off by 1
+0001457143-09-000005.txt - wrong table
+	-- updated the keywords to catch this table
+0001437749-09-002044.txt - gets the right table, no appropriate rows
+0001437749-09-001701.txt -- wrong table
+0000939057-09-000370.txt -- fixed
+0001144204-09-037210.txt
+
+todo:
+
+can't find the contractual obligations tablef or this one:
+0001445260-09-000018.txt - not the right table
+0001445866-09-000016.txt - not the right table
+
+
+
+new errors:
+
+
+0000939057-09-000247.txt - wrong table now

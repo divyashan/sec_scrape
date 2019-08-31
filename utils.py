@@ -78,15 +78,15 @@ def scrape_rows(tbl):
             try:
                 # Get header from table list to properly index columns
                 hdrs = get_table_headers_from_list(tbl_list)
-
                 # If hdrs is none, try identifying header from HTML-type table
                 if not hdrs:
                     hdrs = get_table_headers(tbl)
+
                 total_idx = get_total_idx(hdrs)
-                
                 # Check how long the row is -- this determines which 
                 # row processing function we will use.
                 if len(row) in process_row_fn.keys():
+                    print(len(row))
                     rows.append(process_row_fn[len(row)](row, total_idx))
                 
                 # If we don't have a row processing function for this 
@@ -155,6 +155,7 @@ def scrape_text_rows(lines, tbl_list):
                     rows.append(cleaned_row)
 
 
+    print(rows)
     row_dicts = []
     hdr = get_table_headers_from_list(lines)
     if not hdr:
@@ -168,6 +169,7 @@ def scrape_text_rows(lines, tbl_list):
 
         if len(rows[0]) == 6:
             for row in rows:
+                print(row, total_idxs)
                 row_dicts.append(process_row_len_6(row, total_idx))
         elif len(rows[0]) == 8:
             for row in rows:
